@@ -1,3 +1,6 @@
 @mixin display($displayProperty) {
     display: $displayProperty;
 }
+@mixin justifyContent($content) {
+    justify-content: $content;
+}

@@ -7,6 +7,7 @@ module.exports = {
           @import "@/scss/abstracts/_mixins.scss";
           @import "@/scss/base/_reset.scss";
           @import "@/scss/base/_base.scss";
+          @import "@/scss/base/_typography.scss";
           `
       }
     }
