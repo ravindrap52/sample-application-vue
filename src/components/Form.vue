@@ -164,7 +164,6 @@ export default {
       }
     },
     getSelectedType(item, value, index) {
-      debugger;
       if (item.type === "rating") {
         this.rating = [];
         this.rating.push(value);

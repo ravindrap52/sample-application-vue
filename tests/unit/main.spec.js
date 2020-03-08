@@ -12,4 +12,7 @@ describe("Main.vue", () => {
   it("renders a Child component", () => {
     expect(wrapper.find({ name: "Form" }).exists()).toBe(true);
   });
+  it("renders a Right Child component", () => {
+    expect(wrapper.find({ name: "SelectedOptions" }).exists()).toBe(true);
+  });
 });

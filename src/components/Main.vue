@@ -4,12 +4,15 @@
       <h4 class="subHeading title--primary--color">Customer Alliance Form</h4>
       <Form :formData="data"></Form>
     </div>
-    <!-- <div class="card">submitted form</div> -->
+    <div class="card align-self">
+      <SelectedOptions />
+    </div>
   </main>
 </template>
 <script>
 import formData from "./formData.json";
 import Form from "./Form.vue";
+import SelectedOptions from "./SelectedOptions.vue";
 
 export default {
   name: "Main",
@@ -19,7 +22,8 @@ export default {
     };
   },
   components: {
-    Form
+    Form,
+    SelectedOptions
   }
 };
 </script>
