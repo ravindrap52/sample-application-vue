@@ -10,18 +10,23 @@
           <label class="caption"> {{ item.label }} </label>
           <span class="caption" v-if="item.type === 'rating'">(required)</span>
         </div>
-        <div class="rating--container cursor mb-8">
+        <div
+          class="cursor mb-8"
+          :class="
+            item.type === 'rating' ? 'rating--container' : 'age--container'
+          "
+        >
           <div
             class="caption"
             v-for="(option, index) in item.options"
             :key="index"
             v-bind:class="[
-              item.type === 'age' ? 'age--container' : 'rating mr-8',
+              item.type === 'age' ? 'age' : 'rating mr-8',
               index === activeRatingItem && item.type === 'rating'
                 ? 'rating--active'
                 : '',
               index === activeAgeItem && item.type === 'age'
-                ? 'rating--active'
+                ? 'age--active'
                 : ''
             ]"
             @click="getSelectedType(item, option, index)"
@@ -35,6 +40,17 @@
         >
           please select rating
         </p>
+        <div
+          v-if="item.sub_questions.length > 0 && rating.length > 0"
+          class="mt-8"
+        >
+          <textarea
+            id="subQuestion"
+            rows="5"
+            class="form__control"
+            v-model="message"
+          ></textarea>
+        </div>
       </div>
       <div class="form__group">
         <div class="mb-8">
@@ -98,6 +114,7 @@
 import { required, email } from "vuelidate/lib/validators";
 
 export default {
+  name: "Form",
   props: ["formData"],
   data() {
     return {
@@ -112,7 +129,8 @@ export default {
         password: "",
         email: ""
       },
-      submitStatus: false
+      submitStatus: false,
+      message: ""
     };
   },
   validations: {
@@ -146,6 +164,7 @@ export default {
       }
     },
     getSelectedType(item, value, index) {
+      debugger;
       if (item.type === "rating") {
         this.rating = [];
         this.rating.push(value);
@@ -153,6 +172,14 @@ export default {
         this.rating.length
           ? (this.selctedRatingItem = false)
           : (this.selctedRatingItem = true);
+        if (item.sub_questions && item.sub_questions.length) {
+          for (const question of item.sub_questions) {
+            const isValueAvailable = question.values.includes(value.value);
+            if (isValueAvailable) {
+              this.message = question.questions[0].label;
+            }
+          }
+        }
       } else if (item.type === "age") {
         this.age = [];
         this.age.push(value);
@@ -221,14 +248,39 @@ export default {
   color: $error-color;
 }
 .age--container {
-  border: 1px solid $border-color;
-  padding: 1rem;
-  &:not(:last-child) {
-    border-right: none;
+  display: flex;
+  .age {
+    border: 1px solid $border-color;
+    padding: 1rem;
+    &--active {
+      background: $primary-color;
+      color: $white;
+    }
+    &:not(:last-child) {
+      border-right: none;
+    }
   }
 }
 .active {
   background: $primary-color;
   color: $white;
+}
+@media (min-width: 350px) and (max-width: 950px) {
+  .age--container {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 0.5rem;
+    .age {
+      border: 1px solid $border-color;
+      padding: 1rem;
+      &--active {
+        background: $primary-color;
+        color: $white;
+      }
+      &:not(:last-child) {
+        border-right: 1px solid $border-color;
+      }
+    }
+  }
 }
 </style>

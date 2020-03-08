@@ -4,7 +4,7 @@
       <h4 class="subHeading title--primary--color">Customer Alliance Form</h4>
       <Form :formData="data"></Form>
     </div>
-    <div class="card">submitted form</div>
+    <!-- <div class="card">submitted form</div> -->
   </main>
 </template>
 <script>
@@ -12,6 +12,7 @@ import formData from "./formData.json";
 import Form from "./Form.vue";
 
 export default {
+  name: "Main",
   data() {
     return {
       data: formData
