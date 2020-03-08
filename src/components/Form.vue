@@ -1,79 +1,97 @@
 <template>
-  <form @click.prevent="submitCustomerForm()" novalidate>
-    <div class="form__group" v-for="item in data.formData" :key="item.id">
-      <div class="mb-8">
-        <p class="mb-8 caption">{{ item.id }}.</p>
-        <label class="caption"> {{ item.label }} </label>
-        <span class="caption">(required)</span>
-      </div>
-      <div class="rating--container cursor mb-8">
-        <div
-          class="caption"
-          v-bind:class="[
-            item.type === 'age' ? 'age--container' : 'rating mr-8'
-          ]"
-          v-for="option in item.options"
-          :key="option"
+  <div>
+    <h4 v-if="submitStatus" class="subHeading title--primary--color mb-8">
+      Form Submitted Successfully
+    </h4>
+    <form @submit.prevent="submitCustomerForm($event)" novalidate>
+      <div class="form__group" v-for="item in data.formData" :key="item.id">
+        <div class="mb-8">
+          <p class="mb-8 caption">{{ item.id }}.</p>
+          <label class="caption"> {{ item.label }} </label>
+          <span class="caption" v-if="item.type === 'rating'">(required)</span>
+        </div>
+        <div class="rating--container cursor mb-8">
+          <div
+            class="caption"
+            v-for="(option, index) in item.options"
+            :key="index"
+            v-bind:class="[
+              item.type === 'age' ? 'age--container' : 'rating mr-8',
+              index === activeRatingItem && item.type === 'rating'
+                ? 'rating--active'
+                : '',
+              index === activeAgeItem && item.type === 'age'
+                ? 'rating--active'
+                : ''
+            ]"
+            @click="getSelectedType(item, option, index)"
+          >
+            {{ option.value }}
+          </div>
+        </div>
+        <p
+          class="caption error mt-8"
+          v-if="item.type === 'rating' && selctedRatingItem"
         >
-          {{ option }}
-        </div>
-      </div>
-    </div>
-    <div class="form__group">
-      <div class="mb-8">
-        <p class="mb-8 caption">3.</p>
-        <label class="caption"> Your password </label>
-      </div>
-      <div class="mb-8">
-        <input
-          type="password"
-          v-model.trim="$v.customerForm.password.$model"
-          class="form__control"
-          :class="{
-            'form__control--error': $v.customerForm.password.$error
-          }"
-        />
-        <div v-if="errors">
-          <p
-            class="caption error mt-8"
-            v-if="!$v.customerForm.password.required"
-          >
-            Password is required
-          </p>
-          <p
-            class="caption error mt-8"
-            v-if="!$v.customerForm.password.validatePassword"
-          >
-            Password should contain atleast 1 small letter and 1 number
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="form__group">
-      <div class="mb-8">
-        <p class="mb-8 caption">4.</p>
-        <label class="caption"> Your email address </label>
-      </div>
-      <div class="mb-8">
-        <input
-          type="email"
-          v-model.trim="$v.customerForm.email.$model"
-          class="form__control"
-          :class="{
-            'form__control--error': $v.customerForm.email.$error
-          }"
-        />
-        <p class="caption error mt-8" v-if="$v.customerForm.email.$error">
-          Email format is not correct
+          please select rating
         </p>
       </div>
-    </div>
-    <div class="form__group text-align">
-      <div class="mb-8">
-        <button type="submit" class="btn btn__primary">Submit</button>
+      <div class="form__group">
+        <div class="mb-8">
+          <p class="mb-8 caption">3.</p>
+          <label class="caption"> Your password </label>
+        </div>
+        <div class="mb-8">
+          <input
+            type="password"
+            v-model.trim="$v.customerForm.password.$model"
+            class="form__control"
+            :class="{
+              'form__control--error': $v.customerForm.password.$error
+            }"
+          />
+          <div v-if="errors">
+            <p
+              class="caption error mt-8"
+              v-if="!$v.customerForm.password.required"
+            >
+              Password is required
+            </p>
+            <p
+              class="caption error mt-8"
+              v-if="!$v.customerForm.password.validatePassword"
+            >
+              Password should contain atleast 1 small letter and 1 number
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
-  </form>
+      <div class="form__group">
+        <div class="mb-8">
+          <p class="mb-8 caption">4.</p>
+          <label class="caption"> Your email address </label>
+        </div>
+        <div class="mb-8">
+          <input
+            type="email"
+            v-model.trim="$v.customerForm.email.$model"
+            class="form__control"
+            :class="{
+              'form__control--error': $v.customerForm.email.$error
+            }"
+          />
+          <p class="caption error mt-8" v-if="$v.customerForm.email.$error">
+            Email format is not correct
+          </p>
+        </div>
+      </div>
+      <div class="form__group text-align">
+        <div class="mb-8">
+          <button type="submit" class="btn btn__primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -84,12 +102,17 @@ export default {
   data() {
     return {
       data: this.formData,
+      age: [],
+      selctedRatingItem: false,
+      activeRatingItem: null,
+      activeAgeItem: null,
+      rating: [],
       errors: false,
       customerForm: {
         password: "",
         email: ""
       },
-      isFormSubmitted: null
+      submitStatus: false
     };
   },
   validations: {
@@ -97,9 +120,7 @@ export default {
       password: {
         required,
         validatePassword(password1) {
-          return (
-            /[a-z]/.test(password1) && /[0-9]/.test(password1) //checks for a-z //checks for 0-9
-          );
+          return /[a-z]/.test(password1) && /[0-9]/.test(password1);
         }
       },
       email: {
@@ -108,15 +129,63 @@ export default {
     }
   },
   methods: {
-    submitCustomerForm() {
+    submitCustomerForm(event) {
       this.$v.$touch();
+      const customValidation = this.validateCustomProperties();
+      this.rating.length
+        ? (this.selctedRatingItem = false)
+        : (this.selctedRatingItem = true);
       if (this.$v.$invalid) {
-        this.submitStatus = "ERROR";
+        this.submitStatus = false;
         this.errors = this.$v.customerForm.$anyError;
-        console.log("submit error!");
       } else {
-        this.submitStatus = "OK";
+        if (customValidation && !this.selctedRatingItem) {
+          this.submitStatus = true;
+          this.resetFormFields(event);
+        }
       }
+    },
+    getSelectedType(item, value, index) {
+      if (item.type === "rating") {
+        this.rating = [];
+        this.rating.push(value);
+        this.activeRatingItem = index;
+        this.rating.length
+          ? (this.selctedRatingItem = false)
+          : (this.selctedRatingItem = true);
+      } else if (item.type === "age") {
+        this.age = [];
+        this.age.push(value);
+        this.activeAgeItem = index;
+      }
+    },
+    validateCustomProperties() {
+      let validationStatus;
+      let ageValidationStatus;
+      let ratingValidationStatus;
+      if (Array.isArray(this.age) && this.age.length) {
+        ageValidationStatus = true;
+      }
+      if (Array.isArray(this.rating) && this.rating.length) {
+        ratingValidationStatus = true;
+      }
+      if (ageValidationStatus && ratingValidationStatus) {
+        validationStatus = true;
+      } else {
+        validationStatus = false;
+      }
+      return validationStatus;
+    },
+    resetFormFields(event) {
+      this.customerForm.password = "";
+      this.customerForm.email = "";
+      this.rating = [];
+      this.age = [];
+      this.selctedRatingItem = false;
+      this.activeRatingItem = null;
+      this.activeAgeItem = null;
+      this.errors = false;
+      event.preventDefault();
     }
   }
 };
@@ -129,9 +198,14 @@ export default {
 .rating--container {
   display: flex;
   .rating {
+    background: #d1d1d1;
     padding: 1rem;
     border-radius: 50%;
     border: 1px solid $border-color;
+    &--active {
+      background: $primary-color;
+      color: $white;
+    }
   }
 }
 .form__control {
@@ -152,5 +226,9 @@ export default {
   &:not(:last-child) {
     border-right: none;
   }
+}
+.active {
+  background: $primary-color;
+  color: $white;
 }
 </style>
