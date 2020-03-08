@@ -8,6 +8,7 @@ module.exports = {
           @import "@/scss/base/_reset.scss";
           @import "@/scss/base/_base.scss";
           @import "@/scss/base/_typography.scss";
+          @import "@/scss/components/_button.scss";
           `
       }
     }
