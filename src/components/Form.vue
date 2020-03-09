@@ -95,6 +95,7 @@
             :class="{
               'form__control--error': $v.customerForm.email.$error
             }"
+            @blur="updateEmailState()"
           />
           <p class="caption error mt-8" v-if="$v.customerForm.email.$error">
             Email format is not correct
@@ -167,6 +168,7 @@ export default {
       if (item.type === "rating") {
         this.rating = [];
         this.rating.push(value);
+        this.$store.dispatch("updateRating", value);
         this.activeRatingItem = index;
         this.rating.length
           ? (this.selctedRatingItem = false)
@@ -183,6 +185,7 @@ export default {
         this.age = [];
         this.age.push(value);
         this.activeAgeItem = index;
+        this.$store.dispatch("updateAge", value);
       }
     },
     validateCustomProperties() {
@@ -201,6 +204,9 @@ export default {
         validationStatus = false;
       }
       return validationStatus;
+    },
+    updateEmailState() {
+      this.$store.dispatch("updateEmail", this.customerForm.email);
     },
     resetFormFields(event) {
       this.customerForm.password = "";
